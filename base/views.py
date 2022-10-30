@@ -9,12 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-# rooms = [
-#     {'id':1, 'name': 'Crazy people room'},
-#     {'id':2, 'name': 'Backend Developers'},
-#     {'id':3, 'name': 'Design Lovers'},
-# ]
-
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -91,6 +85,16 @@ def register_page(request):
 def logout_user(request):
     logout(request)
     return redirect('home')
+
+def user_profile(request, pk):
+    user = User.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user': user, 'rooms': rooms,
+               'room_messages': room_messages,
+               'topics': topics}
+    return render(request, 'base/profile.html', context)
 
 @login_required(login_url='login')
 def createRoom(request):
