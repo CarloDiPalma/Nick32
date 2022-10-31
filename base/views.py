@@ -9,8 +9,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
+
 def home(request):
-    q = request.GET.get('q') if request.GET.get('q') != None else ''
+    q = request.GET.get('q') if request.GET.get('q') is not None else ''
 
     rooms = Room.objects.filter(
         Q(topic__name__icontains=q) |
@@ -25,6 +26,7 @@ def home(request):
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count,
                'room_messages': room_messages}
     return render(request, 'base/home.html', context)
+
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
@@ -43,6 +45,7 @@ def room(request, pk):
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants}
     return render(request, 'base/room.html', context)
+
 
 def login_page(request):
     page = 'login'
@@ -63,8 +66,9 @@ def login_page(request):
             return redirect('home')
         else:
             messages.error(request, 'User or password does not exist')
-    context= {'page':page}
+    context = {'page': page}
     return render(request, 'base/login_register.html', context)
+
 
 def register_page(request):
     form = UserCreationForm()
@@ -79,14 +83,16 @@ def register_page(request):
         else:
             messages.error(request, 'An error occurred during the registration')
 
-    context = {'form':form}
+    context = {'form': form}
     return render(request, 'base/login_register.html', context)
+
 
 def logout_user(request):
     logout(request)
     return redirect('home')
 
-def user_profile(request, pk):
+
+def userProfile(request, pk):
     user = User.objects.get(id=pk)
     rooms = user.room_set.all()
     room_messages = user.message_set.all()
@@ -96,17 +102,21 @@ def user_profile(request, pk):
                'topics': topics}
     return render(request, 'base/profile.html', context)
 
+
 @login_required(login_url='login')
 def createRoom(request):
     form = RoomForm()
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
-            form.save()
+            room = form.save(commit=False)
+            room.host = request.user
+            room.save()
             return redirect('home')
 
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
+
 
 @login_required(login_url='login')
 def updateRoom(request, pk):
@@ -125,6 +135,7 @@ def updateRoom(request, pk):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
+
 @login_required(login_url='login')
 def delete(request, pk):
     room = Room.objects.get(id=pk)
@@ -136,6 +147,7 @@ def delete(request, pk):
         room.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': room})
+
 
 @login_required(login_url='login')
 def delete_message(request, pk):
