@@ -1,3 +1,13 @@
-body {
-    background-color: bisque;
+.strng-thngs container{
+    margin: 0 auto;
+}
+
+.strng-thngs container h2 {
+    marin: 20px 0 0;
+}
+
+.crazy-style {
+    width: 100%;
+    background-color: black;
+    height: 30px;
 }

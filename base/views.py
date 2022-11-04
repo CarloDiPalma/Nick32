@@ -192,3 +192,10 @@ def activityPage(request):
     room_messages = Message.objects.all()
     context = {'room_messages': room_messages}
     return render(request, 'base/activity.html', context)
+
+def strange_things(request):
+
+    name = request.user
+    smt = request.META['CSRF_COOKIE']
+    context = {'name': name, 'smt': smt}
+    return render(request, 'base/strange_things.html', context)
