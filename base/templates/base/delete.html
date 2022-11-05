@@ -28,17 +28,14 @@
                     <div class="for__group">
                         <input class="btn btn--main" type="submit" value="Confirm" />
                     </div>
-                    topic_id {{topic_id}}<br>room_id {{room_id}}
+                    topic_id {{topic_id}}<br>room_count {{room_count}}<br>topic: {{topic}}
                     <br>
                     {% comment %}{{topic_ids}}
                     {% for tp in topic_ids %}
                     {{tp}}
                     {% endfor%}{% endcomment %}
                     <br>
-                    {{topics}}
-                    {% for tp in topics %}
-                    {{tp.id}}
-                    {% endfor %}
+                    room: {{room}}
 
                 </form>
             </div>

@@ -117,7 +117,6 @@ def create_room(request):
             name=request.POST.get('name'),
             description=request.POST.get('description'),
         )
-
         #Если топик существует
         if created == False:
             room_count = RoomCount.objects.get(topic_id=topic.id)
@@ -128,7 +127,6 @@ def create_room(request):
                 topic=topic,
                 room_count=1
             )
-            print(RoomCount.objects.get(topic_id=topic.id).room_count)
 
         return redirect('home')
 
@@ -163,20 +161,28 @@ def updateRoom(request, pk):
 @login_required(login_url='login')
 def delete(request, pk):
     room = Room.objects.get(id=pk)
+    topic = room.topic
 
     topic_id = Room.objects.get(id=pk).topic_id
-    room_id = Room.objects.get(id=pk).id
+    room_count = RoomCount.objects.get(topic_id=topic_id).room_count
+
     topic_ids = Topic.id
-    topics = Topic.objects.all()
+
 
     if request.user != room.host:
         return HttpResponse('You are not allowed here!')
 
     if request.method == 'POST':
-        room.delete()
-        return redirect('home')
-    context = {'obj': room, 'topic_ids': topic_ids, 'topics': topics,
-               'topic_id': topic_id, 'room_id': room_id}
+        if room_count > 1:
+            room.delete()
+            return redirect('home')
+        elif room_count == 1:
+            topic.delete()
+            return redirect('home')
+        else:
+            return HttpResponse('room_count < 1 or Null')
+    context = {'obj': room, 'topic': topic, 'room': room,
+               'topic_id': topic_id, 'room_count': room_count}
     return render(request, 'base/delete.html', context)
 
 
