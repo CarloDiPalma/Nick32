@@ -34,3 +34,7 @@ class Message(models.Model):
 
     def __str__(self):
         return self.body[0:50]
+
+class RoomCount(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
+    room_count = models.IntegerField(blank=True, null=True)

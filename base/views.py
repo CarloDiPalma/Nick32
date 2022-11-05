@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Room, Topic, Message
+from .models import Room, Topic, Message, RoomCount
 from .forms import RoomForm, UserForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -104,9 +104,9 @@ def userProfile(request, pk):
 
 
 @login_required(login_url='login')
-def createRoom(request):
+def create_room(request):
     form = RoomForm()
-    topics = Topic.objects.all()
+    all_topics = Topic.objects.all()
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
@@ -117,9 +117,22 @@ def createRoom(request):
             name=request.POST.get('name'),
             description=request.POST.get('description'),
         )
+
+        #Если топик существует
+        if created == False:
+            room_count = RoomCount.objects.get(topic_id=topic.id)
+            room_count.room_count += 1
+            room_count.save()
+        else:
+            RoomCount.objects.create(
+                topic=topic,
+                room_count=1
+            )
+            print(RoomCount.objects.get(topic_id=topic.id).room_count)
+
         return redirect('home')
 
-    context = {'form': form, 'topics': topics}
+    context = {'form': form, 'all_topics': all_topics}
     return render(request, 'base/room_form.html', context)
 
 
@@ -142,7 +155,8 @@ def updateRoom(request, pk):
         room.save()
         return redirect('home')
 
-    context = {'form': form, 'topic': topics, 'room': room}
+    context = {'form': form, 'topic': topics,
+               'room': room}
     return render(request, 'base/room_form.html', context)
 
 
@@ -150,13 +164,20 @@ def updateRoom(request, pk):
 def delete(request, pk):
     room = Room.objects.get(id=pk)
 
+    topic_id = Room.objects.get(id=pk).topic_id
+    room_id = Room.objects.get(id=pk).id
+    topic_ids = Topic.id
+    topics = Topic.objects.all()
+
     if request.user != room.host:
         return HttpResponse('You are not allowed here!')
 
     if request.method == 'POST':
         room.delete()
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': room})
+    context = {'obj': room, 'topic_ids': topic_ids, 'topics': topics,
+               'topic_id': topic_id, 'room_id': room_id}
+    return render(request, 'base/delete.html', context)
 
 
 @login_required(login_url='login')
@@ -169,7 +190,21 @@ def delete_message(request, pk):
     if request.method == 'POST':
         message.delete()
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': message})
+
+
+    context = {'obj': message}
+    return render(request, 'base/delete.html', context)
+
+def strange_things(request):
+
+    topic_room_count = Room.objects.get(pk=2).topic_id
+    name = request.user
+    grey_lol = 'message 12'
+    papas = Message.objects.get(id=2)
+    smt = request.META['CSRF_COOKIE']
+    context = {'name': name, 'smt': smt, 'topic_room_count': topic_room_count,
+               'grey_lol': grey_lol, 'papas': papas}
+    return render(request, 'base/strange_things.html', context)
 
 @login_required(login_url='login')
 def updateUser(request):
@@ -192,10 +227,3 @@ def activityPage(request):
     room_messages = Message.objects.all()
     context = {'room_messages': room_messages}
     return render(request, 'base/activity.html', context)
-
-def strange_things(request):
-
-    name = request.user
-    smt = request.META['CSRF_COOKIE']
-    context = {'name': name, 'smt': smt}
-    return render(request, 'base/strange_things.html', context)
