@@ -175,6 +175,9 @@ def delete(request, pk):
     if request.method == 'POST':
         if room_count > 1:
             room.delete()
+            room_count = RoomCount.objects.get(topic_id=topic.id)
+            room_count.room_count -= 1
+            room_count.save()
             return redirect('home')
         elif room_count == 1:
             topic.delete()
