@@ -17,6 +17,8 @@ class Room(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = 'Комната'
+        verbose_name_plural = 'Комнаты'
         ordering = ['-updated', '-created']
 
     def __str__(self):
