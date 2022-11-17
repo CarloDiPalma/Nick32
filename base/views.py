@@ -19,7 +19,6 @@ def home(request):
         Q(name__icontains=q)
     )
     room_count = rooms.count()
-
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
     topics = Topic.objects.all()[0:5]
@@ -57,8 +56,8 @@ def login_page(request):
         password = request.POST.get('password')
         try:
             user = User.objects.get(username=username)
-        except:
-            messages.error(request, 'User does not exist')
+        except User.DoesNotExist:
+            messages.error(request, 'User does not exist!')
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
@@ -204,7 +203,6 @@ def delete_message(request, pk):
 
 
 def strange_things(request):
-
     topic_room_count = Room.objects.get(pk=2).topic_id
     name = request.user
     grey_lol = 'message 12'
