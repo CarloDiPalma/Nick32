@@ -27,7 +27,7 @@ def home(request):
     return render(request, 'base/home.html', context)
 
 
-def room(request, pk):
+def room_page(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all().order_by('-created')
     participants = room.participants.all()
@@ -135,6 +135,7 @@ def create_room(request):
 
 @login_required(login_url='login')
 def update_room(request, pk):
+
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
@@ -165,8 +166,6 @@ def delete(request, pk):
     topic_id = Room.objects.get(id=pk).topic_id
     room_count = RoomCount.objects.get(topic_id=topic_id).room_count
 
-    topic_ids = Topic.id
-
     if request.user != room.host:
         return HttpResponse('You are not allowed here!')
 
@@ -189,8 +188,8 @@ def delete(request, pk):
 
 @login_required(login_url='login')
 def delete_message(request, pk):
-    message = Message.objects.get(id=pk)
 
+    message = Message.objects.get(id=pk)
     if request.user != message.user:
         return HttpResponse('You are not allowed here!')
 
@@ -203,13 +202,9 @@ def delete_message(request, pk):
 
 
 def strange_things(request):
-    topic_room_count = Room.objects.get(pk=2).topic_id
+
     name = request.user
-    grey_lol = 'message 12'
-    papas = Message.objects.get(id=2)
-    smt = request.META['CSRF_COOKIE']
-    context = {'name': name, 'smt': smt, 'topic_room_count': topic_room_count,
-               'grey_lol': grey_lol, 'papas': papas}
+    context = {'name': name}
     return render(request, 'base/strange_things.html', context)
 
 
